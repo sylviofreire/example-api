@@ -22,11 +22,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getByID(Long id) {
-        return Optional.empty();
+        return this.repository.findById(id);
     }
 
     @Override
     public void delete(User user) {
 
+    }
+
+    @Override
+    public User update(User user) {
+        return null;
     }
 }

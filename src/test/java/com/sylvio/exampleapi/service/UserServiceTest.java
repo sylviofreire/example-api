@@ -12,6 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -52,4 +54,43 @@ public class UserServiceTest {
         assertThat(savedUser.getGender()).isEqualTo("Masculino");
 
     }
+
+    @Test
+    @DisplayName("Should get an user")
+    public void getUserById(){
+        //Scenario
+        Long id = 1l;
+        User user = User.builder().id(id).name("Sylvio").gender("Masculino").birthDate("25/08/1994").age(32).build();
+        Mockito.when(repository.findById(id)).thenReturn(Optional.of(user));
+
+        //Execution
+        Optional<User> foundUser = service.getByID(id);
+
+        //Verifications
+        assertThat(foundUser.isPresent()).isTrue();
+        assertThat(foundUser.get().getId()).isEqualTo(id);
+        assertThat(foundUser.get().getName()).isEqualTo(user.getName());
+        assertThat(foundUser.get().getGender()).isEqualTo(user.getGender());
+        assertThat(foundUser.get().getAge()).isEqualTo(user.getAge());
+        assertThat(foundUser.get().getBirthDate()).isEqualTo(user.getBirthDate());
+
+    }
+
+    @Test
+    @DisplayName("Should return empty when id doesn't exist")
+    public void userNotFoundById(){
+        //Scenario
+        Long id = 1l;
+        Mockito.when(repository.findById(id)).thenReturn(Optional.empty());
+
+        //Execution
+        Optional<User> user = service.getByID(id);
+
+        //Verifications
+        assertThat(user.isPresent()).isFalse();
+
+    }
+
+
+
 }
