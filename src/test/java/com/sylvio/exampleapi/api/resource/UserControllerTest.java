@@ -132,6 +132,23 @@ public class UserControllerTest {
 
     }
 
+    @Test
+    @DisplayName("Should delete an user")
+    public void deleteUserTest() throws Exception {
+
+        //Scenario
+        BDDMockito.given(service.getByID(Mockito.anyLong())).willReturn(Optional.of(User.builder().id(1l).build()));
+
+        //Execution
+        MockHttpServletRequestBuilder request =  MockMvcRequestBuilders
+                .delete(USER_API.concat("/"+ 1))
+                .accept(MediaType.APPLICATION_JSON);
+
+        //Verifications
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
     private UserDTO createNewUser() {
         return UserDTO.builder().name("Sylvio").age(32).birthDate("25/08/1994").gender("Masculino").build();
     }

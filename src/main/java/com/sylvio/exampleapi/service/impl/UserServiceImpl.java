@@ -24,4 +24,9 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getByID(Long id) {
         return Optional.empty();
     }
+
+    @Override
+    public void delete(User user) {
+
+    }
 }
