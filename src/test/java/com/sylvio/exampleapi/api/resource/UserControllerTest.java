@@ -166,6 +166,59 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
+    @Test
+    @DisplayName("Should update an user")
+    public void updateUserTest() throws Exception {
+        //Scenario
+        Long id = 1l;
+        String json = new ObjectMapper().writeValueAsString(createNewUser());
+
+        User updatingUser = User.builder().id(1l).name("Camilla").age(27).gender("Feminino").birthDate("19/04/1993").build();
+        BDDMockito.given(service.getByID(id)).willReturn(Optional.of(updatingUser));
+        User updatedUser = User.builder().id(id).name("Sylvio").age(32).birthDate("25/08/1994").gender("Masculino").build();
+        BDDMockito.given(service.update(updatingUser)).willReturn(updatedUser);
+
+        //Execution
+        MockHttpServletRequestBuilder request =  MockMvcRequestBuilders
+                .put(USER_API.concat("/"+ 1))
+                .content(json)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //Verifications
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
+                .andExpect(MockMvcResultMatchers.jsonPath("name").value(createNewUser().getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("gender").value(createNewUser().getGender()))
+                .andExpect(MockMvcResultMatchers.jsonPath("birthDate").value(createNewUser().getBirthDate()))
+                .andExpect(MockMvcResultMatchers.jsonPath("age").value(createNewUser().getAge()));
+
+    }
+
+    @Test
+    @DisplayName("Should return not found when update an nonexistent user")
+    public void updateNonexistentUserTest() throws Exception {
+        //Scenario
+        String json = new ObjectMapper().writeValueAsString(createNewUser());
+
+        User updatingUser = User.builder().id(1l).name("Camilla").age(27).gender("Feminino").birthDate("19/04/1993").build();
+        BDDMockito.given(service.getByID(Mockito.anyLong()))
+                .willReturn(Optional.empty());
+
+        //Execution
+        MockHttpServletRequestBuilder request =  MockMvcRequestBuilders
+                .put(USER_API.concat("/"+ 1))
+                .content(json)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        //Verifications
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+    }
+
     private UserDTO createNewUser() {
         return UserDTO.builder().name("Sylvio").age(32).birthDate("25/08/1994").gender("Masculino").build();
     }

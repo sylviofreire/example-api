@@ -50,6 +50,22 @@ public class UserController {
         service.delete(user);
     }
 
+    @PutMapping("{id}")
+    public UserDTO update(@PathVariable Long id, UserDTO dto){
+        return service.getByID(id).map( user -> {
+
+            user.setName(dto.getName());
+            user.setAge(dto.getAge());
+            user.setBirthDate(dto.getBirthDate());
+            user.setGender(dto.getGender());
+            user = service.update(user);
+            return modelMapper.map(user, UserDTO.class);
+
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrors handleValidationExceptions(MethodArgumentNotValidException ex){
