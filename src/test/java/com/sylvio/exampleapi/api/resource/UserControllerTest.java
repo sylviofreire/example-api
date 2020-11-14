@@ -39,8 +39,8 @@ public class UserControllerTest {
     @DisplayName("Should create a user")
     public void createUserTest() throws Exception{
 
-        UserDTO dto = UserDTO.builder().name("Sylvio").gender("Masculino").birthDate("25/08/1994").age(33).build();
-        User savedUser = User.builder().id(1l).name("Sylvio").gender("Masculino").birthDate("25/08/1994").age(33).build();
+        UserDTO dto = UserDTO.builder().name("Sylvio").gender("Masculino").birthDate("25/08/1994").age(32).build();
+        User savedUser = User.builder().id(1l).name("Sylvio").gender("Masculino").birthDate("25/08/1994").age(32).build();
         BDDMockito.given(service.save(Mockito.any(User.class))).willReturn(savedUser);
         String json = new ObjectMapper().writeValueAsString(dto);
 
@@ -54,10 +54,10 @@ public class UserControllerTest {
                 .perform(request)
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("id").value(1l))
-                .andExpect(MockMvcResultMatchers.jsonPath("name").value("Sylvio"))
-                .andExpect(MockMvcResultMatchers.jsonPath("gender").value("Masculino"))
-                .andExpect(MockMvcResultMatchers.jsonPath("birthDate").value("25/08/1994"))
-                .andExpect(MockMvcResultMatchers.jsonPath("age").value(33))
+                .andExpect(MockMvcResultMatchers.jsonPath("name").value(dto.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("gender").value(dto.getGender()))
+                .andExpect(MockMvcResultMatchers.jsonPath("birthDate").value(dto.getBirthDate()))
+                .andExpect(MockMvcResultMatchers.jsonPath("age").value(dto.getAge()))
             ;
     }
 
