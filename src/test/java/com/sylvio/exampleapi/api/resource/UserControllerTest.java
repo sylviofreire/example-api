@@ -149,6 +149,23 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
+    @Test
+    @DisplayName("Should return not found when delete an nonexistent user")
+    public void deleteNonexistentUserTest() throws Exception {
+
+        //Scenario
+        BDDMockito.given(service.getByID(Mockito.anyLong())).willReturn(Optional.empty());
+
+        //Execution
+        MockHttpServletRequestBuilder request =  MockMvcRequestBuilders
+                .delete(USER_API.concat("/"+ 1))
+                .accept(MediaType.APPLICATION_JSON);
+
+        //Verifications
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
     private UserDTO createNewUser() {
         return UserDTO.builder().name("Sylvio").age(32).birthDate("25/08/1994").gender("Masculino").build();
     }

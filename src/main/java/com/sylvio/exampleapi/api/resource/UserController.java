@@ -46,7 +46,7 @@ public class UserController {
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id){
-        User user = service.getByID(id).get();
+        User user = service.getByID(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         service.delete(user);
     }
 
