@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sylvio.exampleapi.api.dto.UserDTO;
 import com.sylvio.exampleapi.model.entity.User;
 import com.sylvio.exampleapi.service.UserService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -63,7 +67,60 @@ public class UserControllerTest {
 
     @Test
     @DisplayName("Should throws validation error when trying create a user with insufficient data")
-    public void createInvalidUserTest(){
+    public void createInvalidUserTest() throws Exception{
 
+        String json = new ObjectMapper().writeValueAsString(new UserDTO());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(USER_API)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform(request)
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("errors", Matchers.hasSize(4)));
+
+    }
+    @Test
+    @DisplayName("Should get user details")
+    public void getUserDetailsTest() throws Exception{
+        //Scenario
+        Long id = 1l;
+
+        User user = User.builder()
+                .id(id)
+                .name(createNewUser().getName())
+                .age(createNewUser().getAge())
+                .birthDate(createNewUser().getBirthDate())
+                .gender(createNewUser().getGender())
+                .build();
+
+        BDDMockito.given(service.getByID(id)).willReturn(Optional.of(user));
+
+        //Execution
+        MockHttpServletRequestBuilder request =  MockMvcRequestBuilders
+                .get(USER_API.concat("/"+id))
+                .accept(MediaType.APPLICATION_JSON);
+
+        //Verification
+        mvc
+                .perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
+                .andExpect(MockMvcResultMatchers.jsonPath("name").value(createNewUser().getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("gender").value(createNewUser().getGender()))
+                .andExpect(MockMvcResultMatchers.jsonPath("birthDate").value(createNewUser().getBirthDate()))
+                .andExpect(MockMvcResultMatchers.jsonPath("age").value(createNewUser().getAge()));
+    }
+
+    @Test
+    @DisplayName("")
+    public void userNotFoundTest(){
+
+    }
+
+    private UserDTO createNewUser() {
+        return UserDTO.builder().name("Sylvio").age(32).birthDate("25/08/1994").gender("Masculino").build();
     }
 }
