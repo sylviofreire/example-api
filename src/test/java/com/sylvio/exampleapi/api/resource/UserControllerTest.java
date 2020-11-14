@@ -115,8 +115,20 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("")
-    public void userNotFoundTest(){
+    @DisplayName("Should returns resource not found when user doesn't exist")
+    public void userNotFoundTest() throws Exception{
+        //Scenario
+        BDDMockito.given(service.getByID(Mockito.anyLong())).willReturn(Optional.empty());
+
+        //Execution
+        MockHttpServletRequestBuilder request =  MockMvcRequestBuilders
+                .get(USER_API.concat("/"+ 1))
+                .accept(MediaType.APPLICATION_JSON);
+
+        //Verification
+        mvc
+                .perform(request)
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
 
     }
 
